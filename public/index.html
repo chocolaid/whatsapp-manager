@@ -129,7 +129,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mui/material@5.3.4/dist/umd/material.production.min.js"></script>
 
     <script>
-        const socket = new WebSocket('wss://oecapps-wha.vercel.app/');
+        const socket = new WebSocket('ws://oecapps-wha.vercel.app/');
         let sessionId = null;
         socket.addEventListener('open', (event) => {
             console.log('WebSocket connection opened:', event);
