@@ -107,7 +107,6 @@ app.get('/link-qr', async (req, res) => {
     }
 });
 
-
 app.get('/link-number', (req, res) => {
     const sessionId = req.query.sessionId || '';
     const ws = activeSessions.get(sessionId);
@@ -123,4 +122,13 @@ app.get('/link-number', (req, res) => {
 
 server.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
+});
+
+// Global error handler to prevent process termination
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection:', reason, 'Promise:', promise);
 });

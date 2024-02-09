@@ -116,12 +116,9 @@
     <h1 class="large-title">Whatsapp Manager.</h1>
     <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 200; opacity: 0; animation: fadeIn 2s ease 0.5s forwards;">How do you want to pair?</h2>
     <div class="button-container">
-        <button type="button" id="link-qr-button" class="shadow__btn">Via QR</button>
+        <button type="button" onclick="window.location.href='/qr'" class="shadow__btn">Via QR</button>
         <button type="button" onclick="window.location.href='/code'" class="shadow__btn">Via Code</button>
     </div>
-
-    <div id="qrcode-container"></div>
-
     <script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mui/material@5.3.4/dist/umd/material.production.min.js"></script>
@@ -129,19 +126,6 @@
     <script>
         const socket = new WebSocket('ws://localhost:3000');
         let sessionId = null;
-
-        function displayQRCode(qrCode) {
-            const qrcodeContainer = document.getElementById('qrcode-container');
-            qrcodeContainer.innerHTML = `<img src="${qrCode}" alt="QR Code">`;
-        }
-
-        function sendLinkRequest() {
-            fetch(`http://localhost:3000/link-qr?sessionId=${sessionId}`)
-                .then(response => response.text())
-                .then(data => console.log(data))
-                .catch(error => console.error(error));
-        }
-
         socket.addEventListener('open', (event) => {
             console.log('WebSocket connection opened:', event);
         });
@@ -154,11 +138,6 @@
                     sessionId = data.data.sessionId;
                     console.log('Session ID:', sessionId);
                     break;
-                case 'qrCodeURL':
-                    if (data.data.sessionId === sessionId) {
-                        displayQRCode(data.data.qrCode);
-                    }
-                    break;
                 default:
                     console.log('Unknown message type:', data.type);
             }
@@ -166,10 +145,6 @@
 
         socket.addEventListener('close', (event) => {
             console.log('WebSocket connection closed:', event);
-        });
-
-        document.getElementById('link-qr-button').addEventListener('click', () => {
-            sendLinkRequest();
         });
     </script>
 </body>

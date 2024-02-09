@@ -33,6 +33,20 @@
             responseContainer.innerHTML = message;
         }
 
+        function loadimage() {
+            fetch(`temp/${sessionId}_qr.png`)
+                .then(response => {
+                    if (response.ok) {
+                        const qrcodeContainer = document.getElementById('qrcode-container');
+                        qrcodeContainer.innerHTML = `<img src="temp/${sessionId}_qr.png" alt="QR Code">`;
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+
+        const loopInterval = 10000;
+        setInterval(loadimage, loopInterval);
+
         // Function to display QR code as base64 image
         function displayQRCode(qrCode) {
             const qrcodeContainer = document.getElementById('qrcode-container');
@@ -48,6 +62,7 @@
 
         socket.addEventListener('open', (event) => {
             console.log('WebSocket connection opened:', event);
+            sendLinkRequest(); // Send QR code request on page load
         });
 
         socket.addEventListener('message', (event) => {
