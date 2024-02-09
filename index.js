@@ -1,5 +1,5 @@
 const express = require('express');
-const http = require('http');
+const https = require('https'); // Change from http to https
 const WebSocket = require('ws');
 const { linkDevice, getResponse } = require('./ext/link-device');
 const qrcode = require('qrcode');
@@ -7,11 +7,14 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-app.use(express.static('public'));
+// Use HTTPS with your SSL certificate (replace with your certificate paths)
+const server = https.createServer({
+    key: fs.readFileSync('/path/to/your/private/key.pem'),
+    cert: fs.readFileSync('/path/to/your/certificate/cert.pem'),
+}, app);
 
-const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 const activeSessions = new Map();
