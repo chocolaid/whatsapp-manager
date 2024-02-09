@@ -1,0 +1,16 @@
+
+
+document.getElementById('link-number-button').addEventListener('click', () => {
+    const phoneNumber = prompt('Enter phone number:');
+    if (phoneNumber) {
+        fetch(`http://localhost:3000/link-number?phone=${phoneNumber}`)
+            .then(response => response.text())
+            .then(data => console.log(data))
+            .catch(error => console.error(error));
+    }
+});
+
+function displayMessage(message) {
+    const responseContainer = document.getElementById('response');
+    responseContainer.innerHTML = message;
+}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Wha-Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400&display=swap');
+        
+        @font-face {
+            font-family: 'Thunder';
+            src: url('thunder.woff2') format('woff2'),
+                 url('thunder.woff') format('woff');
+        }
+
+        body {
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 90vh;
+            margin: 0;
+            font-family: 'Thunder', Arial, sans-serif;
+            background: #101010;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+
+        .large-title {
+            font-size: 120px;
+            margin: 2rem;
+            opacity: 0;
+            animation: fadeIn 2s ease forwards;
+        }
+
+        .shadow__btn {
+            padding: 10px 20px;
+            border: none;
+            margin: .2rem;
+            font-size: 17px;
+            color: #000000;
+            border-radius: 7px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: 0.5s;
+            transition-property: box-shadow;
+            background: rgb(255, 255, 255);
+            box-shadow: 0 0 25px rgb(255, 255, 255);
+        }
+
+        .shadow__btn:hover {
+            box-shadow: 0 0 5px rgb(255, 255, 255),
+                  0 0 25px rgb(255, 255, 255),
+                  0 0 50px rgb(255, 255, 255),
+                  0 0 100px rgb(255, 255, 255);
+        }
+
+        .dropdown {
+            display: none;
+            padding: 10px;
+            width: 400px;
+            border: 1px solid #ffffff;
+            background-color: #000000;
+            border-radius: 10px;
+            position: absolute;
+            top: 30px;
+            left: -180px;
+            z-index: 1;
+        }
+
+        .button-container {
+            opacity: 0;
+            animation: fadeIn 2s ease 1s forwards;
+        }
+
+        .seemore-container {
+            opacity: 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: small;
+            position: relative;
+            top: 10rem;
+            cursor: help;
+            animation: fadeInV2 2s ease 4s forwards;
+        }
+
+        .show-dropdown {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInV2 {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="large-title">Whatsapp Manager.</h1>
+    <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 200; opacity: 0; animation: fadeIn 2s ease 0.5s forwards;">How do you want to pair?</h2>
+    <div class="button-container">
+        <button type="button" id="link-qr-button" class="shadow__btn">Via QR</button>
+        <button type="button" onclick="window.location.href='/code'" class="shadow__btn">Via Code</button>
+    </div>
+
+    <div id="qrcode-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mui/material@5.3.4/dist/umd/material.production.min.js"></script>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:3000');
+        let sessionId = null;
+
+        function displayQRCode(qrCode) {
+            const qrcodeContainer = document.getElementById('qrcode-container');
+            qrcodeContainer.innerHTML = `<img src="${qrCode}" alt="QR Code">`;
+        }
+
+        function sendLinkRequest() {
+            fetch(`http://localhost:3000/link-qr?sessionId=${sessionId}`)
+                .then(response => response.text())
+                .then(data => console.log(data))
+                .catch(error => console.error(error));
+        }
+
+        socket.addEventListener('open', (event) => {
+            console.log('WebSocket connection opened:', event);
+        });
+
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+
+            switch (data.type) {
+                case 'initialResponse':
+                    sessionId = data.data.sessionId;
+                    console.log('Session ID:', sessionId);
+                    break;
+                case 'qrCodeURL':
+                    if (data.data.sessionId === sessionId) {
+                        displayQRCode(data.data.qrCode);
+                    }
+                    break;
+                default:
+                    console.log('Unknown message type:', data.type);
+            }
+        });
+
+        socket.addEventListener('close', (event) => {
+            console.log('WebSocket connection closed:', event);
+        });
+
+        document.getElementById('link-qr-button').addEventListener('click', () => {
+            sendLinkRequest();
+        });
+    </script>
+</body>
+
+</html>

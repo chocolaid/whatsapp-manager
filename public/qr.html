@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charSet="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" href="https://i.ibb.co/y4q5tP7/warning.png" type="image/x-icon">
+    <title>Create QR Code</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+    <div>
+        <div class="bg-light">
+            <span class="shadow-effect"></span>
+            <div class="p-16 relative z-20 min-h-screen flex place-items-center place-content-center">
+                <div class="bg-kgray-80 shadow-2xl p-10 rounded-lg max-w-sm xl:max-w-lg text-center">
+                    <div id="qrcode-container">
+
+                    </div>
+                    <div id="response"></div>
+                    <button id="generate-qr-button" class="shadow__btn">Generate QR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const socket = new WebSocket('ws://localhost:3000');
+        let sessionId = null;
+
+        function displayMessage(message) {
+            const responseContainer = document.getElementById('response');
+            responseContainer.innerHTML = message;
+        }
+
+        // Function to display QR code as base64 image
+        function displayQRCode(qrCode) {
+            const qrcodeContainer = document.getElementById('qrcode-container');
+            qrcodeContainer.innerHTML = `<img src="data:image/png;base64,${qrCode}" alt="QR Code">`;
+        }
+
+        function sendLinkRequest() {
+            fetch(`http://localhost:3000/link-qr?sessionId=${sessionId}`)
+                .then(response => response.text())
+                .then(data => console.log(data))
+                .catch(error => console.error(error));
+        }
+
+        socket.addEventListener('open', (event) => {
+            console.log('WebSocket connection opened:', event);
+        });
+
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+
+            switch (data.type) {
+                case 'initialResponse':
+                    sessionId = data.data.sessionId;
+                    console.log('Session ID:', sessionId);
+                    break;
+                case 'qrCode':
+                case 'receivedCode':
+                    if (data.data.sessionId === sessionId) {
+                        displayQRCode(data.data.qrCode);
+                    }
+                    break;
+                default:
+                    console.log('Unknown message type:', data.type);
+            }
+        });
+
+        document.getElementById('generate-qr-button').addEventListener('click', () => {
+            sendLinkRequest();
+        });
+    </script>
+</body>
+
+</html>
