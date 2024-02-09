@@ -1,0 +1,24 @@
+{
+  "name": "wha-manager",
+  "version": "1.0.0",
+  "description": "Whatsapp business manager",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "Whatsapp bot",
+    "bot",
+    "automation",
+    "Whatsapp"
+  ],
+  "author": "oecapps",
+  "license": "GPL-3.0-only",
+  "dependencies": {
+    "express": "^4.18.2",
+    "qrcode": "^1.5.3",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "github:MobCode100/whatsapp-web.js",
+    "ws": "^8.16.0"
+  }
+}
